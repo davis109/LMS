@@ -1,0 +1,5 @@
+This is a placeholder for a default video.
+
+Due to Cloudinary upload limits and rate restrictions, we're temporarily using a local placeholder.
+
+Please try uploading your video again later or contact support if the issue persists. 
