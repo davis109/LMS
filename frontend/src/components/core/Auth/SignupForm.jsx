@@ -7,9 +7,8 @@ import { useNavigate } from "react-router-dom"
 import { sendOtp } from "../../../services/operations/authAPI"
 import { setSignupData } from "../../../slices/authSlice"
 import { ACCOUNT_TYPE } from "../../../utils/constants"
+import { passwordValidator } from "../../../utils/passwordValidator"
 import Tab from "../../common/Tab"
-
-
 
 function SignupForm() {
   const navigate = useNavigate();
@@ -17,6 +16,7 @@ function SignupForm() {
 
   // student or instructor
   const [accountType, setAccountType] = useState(ACCOUNT_TYPE.STUDENT);
+  const [passwordErrors, setPasswordErrors] = useState([]);
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -38,7 +38,11 @@ function SignupForm() {
       [e.target.name]: e.target.value,
     }));
 
-    // console.log('signup form data - ', formData);
+    // Validate password when it changes
+    if (e.target.name === "password") {
+      const { errors } = passwordValidator(e.target.value);
+      setPasswordErrors(errors);
+    }
   };
 
   // Handle Form Submission
@@ -46,9 +50,16 @@ function SignupForm() {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error("Passwords Do Not Match")
+      toast.error("Passwords Do Not Match");
       return;
     }
+
+    const { isValid, errors } = passwordValidator(password);
+    if (!isValid) {
+      errors.forEach(error => toast.error(error));
+      return;
+    }
+
     const signupData = {
       ...formData,
       accountType,
@@ -67,7 +78,7 @@ function SignupForm() {
       email: "",
       password: "",
       confirmPassword: "",
-    })
+    });
     setAccountType(ACCOUNT_TYPE.STUDENT);
   };
 
@@ -212,6 +223,17 @@ function SignupForm() {
           </label>
         </div>
 
+        {/* Password validation errors */}
+        {passwordErrors.length > 0 && (
+          <div className="text-pink-200 text-sm">
+            <p>Password requirements:</p>
+            <ul className="list-disc pl-5">
+              {passwordErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <button
           type="submit"

@@ -3,16 +3,17 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai"
 import { BiArrowBack } from "react-icons/bi"
 import { useDispatch, useSelector } from "react-redux"
 import { Link, useLocation, useNavigate } from "react-router-dom"
+import { toast } from "react-hot-toast"
 
 import { resetPassword } from "../services/operations/authAPI"
-
-
+import { passwordValidator } from "../utils/passwordValidator"
 
 function UpdatePassword() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const location = useLocation()
   const { loading } = useSelector((state) => state.auth)
+  const [passwordErrors, setPasswordErrors] = useState([])
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -28,8 +29,13 @@ function UpdatePassword() {
       ...prevData,
       [e.target.name]: e.target.value,
     }))
-  }
 
+    // Validate password when it changes
+    if (e.target.name === "password") {
+      const { errors } = passwordValidator(e.target.value)
+      setPasswordErrors(errors)
+    }
+  }
 
   // const params = useParams()
   // console.log('Params data = ', params)
@@ -37,6 +43,14 @@ function UpdatePassword() {
   const handleOnSubmit = (e) => {
     e.preventDefault()
     const token = location.pathname.split("/").at(-1)
+
+    // Validate password
+    const { isValid, errors } = passwordValidator(password)
+    if (!isValid) {
+      errors.forEach(error => toast.error(error))
+      return
+    }
+
     dispatch(resetPassword(password, confirmPassword, token, navigate))
   }
 
@@ -69,7 +83,7 @@ function UpdatePassword() {
                 style={{
                   boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                 }}
-                className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5 "
+                className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
               />
               <span
                 onClick={() => setShowPassword((prev) => !prev)}
@@ -97,7 +111,7 @@ function UpdatePassword() {
                 style={{
                   boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
                 }}
-                className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5 "
+                className="w-full rounded-[0.5rem] bg-richblack-800 p-[12px] text-richblack-5"
               />
               <span
                 onClick={() => setShowConfirmPassword((prev) => !prev)}
@@ -110,6 +124,18 @@ function UpdatePassword() {
                 )}
               </span>
             </label>
+
+            {/* Password validation errors */}
+            {passwordErrors.length > 0 && (
+              <div className="mt-3 text-pink-200 text-sm">
+                <p>Password requirements:</p>
+                <ul className="list-disc pl-5">
+                  {passwordErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <button
               type="submit"
