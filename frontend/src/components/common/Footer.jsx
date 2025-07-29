@@ -174,11 +174,11 @@ const Footer = () => {
 
           <div className="text-center flex flex-col sm:flex-row ">
             <div className="flex ">
-              <span> Made with ❤️</span>
+              
 
               <Link to='https://github.com/Aniruddha-Gade' target="__blank" className="text-white hover:underline mr-1"
               >
-                Aniruddha Gade
+                StudyNotion
               </Link>
             </div>
             <span> © 2023 Studynotion</span>
